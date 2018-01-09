@@ -56,11 +56,11 @@ def testevent():
     driver.find_element_by_xpath("//*[@id='main']/div[2]/div[1]/div[2]/div/table/tbody/tr/td[2]/div/form/div/div/div[2]/button").click()
     
     try:
-        WebDriverWait(browser, 3).until(EC.alert_is_present(),
+        WebDriverWait(driver, 3).until(EC.alert_is_present(),
                                    'Timed out waiting for PA creation ' +
                                    'confirmation popup to appear.')
 
-        alert = browser.switch_to.alert
+        alert = driver.switch_to.alert
         alert.accept()
         print("alert accepted")
     except TimeoutException:
