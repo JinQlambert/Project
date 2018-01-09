@@ -16,6 +16,10 @@ import schedule
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from slacker import Slacker
