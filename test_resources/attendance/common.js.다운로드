@@ -1,0 +1,295 @@
+var BYTE_limit        = "  바이트 까지 입력이 가능합니다        ";
+var TOG_WORD        = '%0D';
+
+
+// 팝업창
+function MM_openBrWindow(theURL,winName,features) {
+    window.open(theURL,winName,features);
+}
+
+function MM_jumpMenu(targ,selObj,restore){ //v3.0
+  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+  if (restore) selObj.selectedIndex=0;
+}
+
+//INPUTBOX에 Length 제한하기
+function checkInputBox(obj,iCutLang) {
+  var bResult = checkMsgLen(obj,iCutLang);
+
+  if (!bResult) {
+//    alert(iCutLang+BYTE_limit    );
+    alert("입력길이를 초과하였습니다. "+"(한글"+iCutLang/2+"자, 영문"+iCutLang+"자)");
+    obj.value = cutText(obj,iCutLang);
+    obj.focus();
+  }
+}
+
+function checkMsgLen(obj,sByteLen) {
+
+  var iCounts = new Array();
+  iCounts = getByteLen(obj);  // 변수의 길이를 구하는 함수
+
+   if (iCounts[0] > sByteLen)
+    return false;
+  else
+    return true;
+}
+
+//80바이트 이상 되면 변수의 길이를 자르는 함수
+function cutText(obj,sByteLen) {
+
+  var sTmpMsg     = '';
+  var iTmpMsgLen    = 0;
+  var sOneChar    = '';
+  var iCount      = 0;
+  var sOneCharNext  = '';
+
+  sTmpMsg = new String(obj.value);
+  iTmpMsgLen = sTmpMsg.length;
+
+  for (var k = 0 ;k < iTmpMsgLen ; k++) {
+    sOneChar = sTmpMsg.charAt(k);
+    sOneCharNext = sTmpMsg.charAt(k+1);
+    if (escape(sOneChar) == TOG_WORD) {
+      iCount++;
+      if (iCount > sByteLen-1) {
+        sTmpMsg = sTmpMsg.substring(0,k);
+        break;
+      }
+    }
+    else if (escape(sOneChar).length > 4) {
+      iCount += 2;
+    }
+    else {
+      iCount++;
+    }
+    if (iCount > sByteLen) {
+      sTmpMsg = sTmpMsg.substring(0,k);
+      break;
+    }
+  }
+  return sTmpMsg;
+}
+
+//한글일 경우에는 2byte를 그외의 문자는 1byte로 계산하여  iCounts에 저장하여 return 해준다.
+function getByteLen(obj,sMsgLng) {
+
+  var sMsg       = obj.value;
+  var sTmpMsg    = '';                        //메시지를 임시로 저장하는 변수
+  var sTmpMsgLen = 0;                         //임시로 저장된 메시지의 길이를 저장하는 변수
+  var sOneChar   = '';                        //한문자를 저장하는 변수
+  var iCounts    = new Array();                   //총 바이트와 페이지당 바이트 수를 저장하는 배열
+
+  iCounts[0]=0;                           //총 바이트를 저장 하는 변수
+
+  if (sMsgLng != null) {
+    sTmpMsg = new String(sMsgLng);
+  }
+  else
+    sTmpMsg = new String(sMsg);
+
+  sTmpMsgLen  = sTmpMsg.length;
+
+  for (k = 0 ;k < sTmpMsgLen ;k++) {
+    sOneChar = sTmpMsg.charAt(k);
+    if (escape(sOneChar) == TOG_WORD) {
+      iCounts[0]++;
+    }
+    else if (escape(sOneChar).length > 4) {
+      iCounts[0] += 2;
+    }
+    else  {
+      iCounts[0]++;
+    }
+  }
+
+  return iCounts;
+}
+
+// 파일 부분에 텍스트 입력 못하게 하기 위해서
+function fileWriteNot(){
+  if(event.keyCode!=116){
+    event.returnValue=false;
+  }
+}
+
+// 로그인 Inputbox 특수문자 제어
+function LoginCheckSpecial(obj){
+
+  var strobj = obj;
+  
+  re = /[\(\)'"]/gi;
+  
+  if(re.test(strobj.value)){
+    alert("입력하신 특수문자는 사용하실수 없습니다.");
+    strobj.value=strobj.value.replace(re,"");
+  }
+}
+    
+function getFileExtension( filePath )
+{
+  var lastIndex = -1;
+  lastIndex = filePath.lastIndexOf('.');
+  var extension = "";
+
+  if ( lastIndex != -1 ) {
+    extension = filePath.substring( lastIndex+1, filePath.len );
+  } else {
+    extension = "";
+  }
+  return extension;
+}
+
+// 날짜포맷에 맞는지 검사
+function isDateFormat(d) {
+//   var df = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
+    var df = /[0-9]{8}/;
+    return d.match(df);
+}
+// 윤년여부 검사
+function isLeaf(year) {
+    var leaf = false;
+
+    if(year % 4 == 0) {
+        leaf = true;
+
+        if(year % 100 == 0) {
+            leaf = false;
+        }
+        if(year % 400 == 0) {
+            leaf = true;
+        }
+    }
+    return leaf;
+}
+// 날짜가 유효한지 검사
+function isValidDate(d) {
+    // 포맷에 안맞으면 false리턴
+    if(!isDateFormat(d)) {
+        return false;
+    }
+    
+    var month_day = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+//    var dateToken = d.split('-');
+//    var year = Number(dateToken[0]);
+//    var month = Number(dateToken[1]);
+//    var day = Number(dateToken[2]);
+
+    var year  = d.substring(0,4);
+    var month = d.substring(4,6);
+    var day   = d.substring(6,8);
+
+    // 날짜가 0이면 false
+    if(day == 0) {
+        return false;
+    }
+    
+    var isValid = false;
+
+    // 윤년일때
+    if(isLeaf(year)) {
+        if(month == 2) {
+            if(day <= month_day[month-1] + 1) {
+                isValid = true;
+            }
+        } else {
+            if(day <= month_day[month-1]) {
+                isValid = true;
+            }
+        }
+    } else {
+        if(day <= month_day[month-1]) {
+            isValid = true;
+        }
+    }
+
+    return isValid;
+}
+
+function isValidNumber(n) { 
+   return preg_match('/^([0-9]+)?\.?([0-9]{2})?$/', n); 
+}
+
+function isNumber(num) {
+ var val = trim(num);
+
+  for(var i = 0; i < val && val.length; i++) {
+    if(val.charAt(i) < '0' || val.charAt(i) > '9') {
+      return false;
+    }
+  }
+  return true;
+}
+
+function InputCheckValid(obj, msg) {
+   if (!obj.value) {
+     obj.focus();
+     alert(msg);
+     return false;
+   }
+   return true; 
+}
+
+// 특수문자 제거
+function inputCheckSpecial(str){
+  var strobj = str;
+ 
+  re = /[@\#$%*\=+'"]/gi;
+  
+  if(re.test(strobj)){
+    alert("특수문자는 입력하실수 없습니다.");
+    return false;
+  }
+  return true;
+}
+
+// 날짜시간 차이 계산 : 분으로 리턴
+function calDateRange(sDate, shour, stime, eDate, ehour, etime)
+{
+  var FORMAT = "/";
+
+  // FORMAT을 포함한 길이 체크
+  if (sDate.length != 10 || eDate.length != 10)
+      return null;
+
+  // FORMAT이 있는지 체크
+  if (sDate.indexOf(FORMAT) < 0 || eDate.indexOf(FORMAT) < 0)
+      return null;
+
+  // 년도, 월, 일로 분리
+  var start_dt = sDate.split(FORMAT);
+  var end_dt = eDate.split(FORMAT);
+   // 월 - 1(자바스크립트는 월이 0부터 시작하기 때문에...)
+  // Number()를 이용하여 08, 09월을 10진수로 인식하게 함.
+  start_dt[1] = (Number(start_dt[1]) - 1) + "";
+  end_dt[1] = (Number(end_dt[1]) - 1) + "";
+
+  var from_dt = new Date(start_dt[0], start_dt[1], start_dt[2], shour, stime);
+  var to_dt = new Date(end_dt[0], end_dt[1], end_dt[2], ehour, etime);
+
+  var chkDate = (to_dt.getTime() - from_dt.getTime());
+  
+  if(chkDate < 0 ) {
+     alert("종료시간이 시작시간보다 빠릅니다. 다시 확인하세요.");
+     return false;
+  } else if (chkDate == 0) {
+     alert("시작일시와 종료일시가 동일합니다. 다시 확인하세요.");
+     return false;
+  }
+  
+  return (to_dt.getTime() - from_dt.getTime()) / 1000 / 60;
+}
+
+// 모바일 기기 확인
+function mobileCheck() {
+  var smartPhones = ['iphone', 'ipad', 'ipod','windows ce','android','blackberry','nokia','webos','opera mini','sonyerricsson','opera mobi','iemobile'];
+  var result = false;
+  
+  for (var i in smartPhones) {
+    if (navigator.userAgent.toLowerCase().match(new RegExp(smartPhones[i]))) {
+        result = true;
+    }
+  }
+  return result;
+}

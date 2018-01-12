@@ -1,0 +1,112 @@
+		// 통합로그인 인증키 가져오기
+		Authkey = getCookie("SUSER_AUTHKEY");
+		
+		// 인증키가 있다면 로그인 된 상태
+		if (Authkey != "") {
+			//현재 시간 구하기
+			now = new Date();
+			setDate = Math.floor(now.getTime()/1000);  
+			
+			// 현재 시간을 쿠키에 저장
+			SetCookie('SUSER_LIMIT',setDate, 0, '.hongik.ac.kr');
+			
+		}
+		// 인증키가 있는 경우 매 초마다 dpTime() 호출 
+		timerid = setInterval(function() {if (Authkey != "") dpTime();} ,1000);
+
+function dpTime() {
+  Authkey = getCookie("SUSER_AUTHKEY");
+  
+  if (Authkey != "") {
+    // 자동로그아웃 시간 100분 설정
+	  maxTime = 6000000; 
+	
+	  now = new Date();
+	  hours = now.getHours();
+	  minutes = now.getMinutes();
+	  seconds = now.getSeconds();
+	  limit = getCookie("SUSER_LIMIT");
+	  ldate = new Date(limit*1000);
+	  
+	  // 현재 시간과 인증시간 비교 
+	  gap = now.getTime() - ldate.getTime();
+	 
+	  // 자동로그아웃 시간 이내인 경우
+	  if  ((maxTime - gap) > 0 ) {
+	
+      // 남은 시간 계산 			
+		  RestTime = (maxTime - gap)/1000;
+		  Lminutes = parseInt(RestTime/60); 
+		  Lseconds = parseInt(RestTime - (Lminutes*60))  ;
+		  // Text 출력 (id=login_time)
+		  LText = Lminutes +"분 " + Lseconds+"초" ;
+		  document.getElementById("login_timer").innerHTML = "자동로그아웃까지 "+Lminutes +"분 " + Lseconds+"초"+ " || " + "<a class='btn'><b>연장</b></a>"; 
+		
+		  var ofs = 0;
+		  
+		  // 30초 남은 경우 Text 영역 반짝반짝
+		  if (RestTime < 30 ) {
+				document.getElementById("login_timer").style.display = "block";
+				setInterval(function(){
+				document.getElementById("login_timer").style.backgroundColor= 'rgba(189,189,189,'+Math.abs(Math.sin(ofs))+')'; ofs += 0.01;}, 1);	
+		  } 
+		  else {
+				 /*
+				setInterval(function(){
+				document.getElementById("login_timer").style.backgroundColor= 'rgba(189,189,189,'+Math.abs(Math.sin(ofs))+')'; ofs += 0.01;}, 1);
+				*/
+		  }
+	  } 
+	  else {
+		  RestTime = "강제로그아웃";
+		  document.getElementById("login_timer").style.backgroundColor = "#FFFFFF";
+		  document.getElementById("login_timer").innerHTML = "자동로그아웃";
+		  //document.getElementById("login_timer").style.display = "block";
+		  // 로그아웃 URL 호출
+		  document.location.href = "https://hrm.hongik.ac.kr/new/logout.php";
+	  }
+  } 
+  else {
+		// 로그인 안된 상태이므로 무조건 로그아웃 
+		document.getElementById("login_timer").innerHTML = "로그인 안됨";
+		document.getElementById("login_timer").style.backgroundColor = "#FFFFFF";
+		//document.getElementById("login_timer").style.display = "block";
+		document.location.href = "https://hrm.hongik.ac.kr/new/logout.php";
+  }
+}
+
+// 쿠키 가져오기 함수 
+function getCookie(cName) {
+  cName = cName + '=';
+  var cookieData = document.cookie;
+  var start = cookieData.indexOf(cName);
+  var cValue = '';
+  if(start != -1){
+    start += cName.length;
+    var end = cookieData.indexOf(';', start);
+  
+    if(end == -1)end = cookieData.length;
+	      cValue = cookieData.substring(start, end);
+	}
+	return unescape(cValue);
+}
+
+// 쿠키 저장 함수
+function SetCookie(name, value, expiredays, domain) {
+
+  var todayDate = new Date();
+  todayDate.setDate(todayDate.getDate() + expiredays);
+
+  if (expiredays != 0) {
+	document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + "; domain=" + domain + ";";
+  } else {
+	document.cookie = name + "=" + escape( value ) + "; path=/; domain=" + domain + ";";
+  }
+
+} 
+
+function mktime(h, i, s, m, d, y){
+  var mkt = new Date(y, m-1, d, h, i, s);
+  if( mktime.arguments.length == 0 ) mkt = new Date();
+  return Math.floor(mkt.getTime()/1000);
+}

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)https://hrm.hongik.ac.kr/new/index.php -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  
+  <meta name="viewport" content="width=1000">
+
+  <script src="./attendance/jquery-1.11.0.min.js.다운로드" charset="UTF-8"></script>
+  <script src="./attendance/crownix-viewer.min.js.다운로드" charset="UTF-8"></script>
+  <!--<script type="text/javascript" src="../jquery/jquery-ui-1.10.2.custom.min.js"></script>-->
+  <script type="text/javascript" src="./attendance/jquery-ui-1.10.2.custom.min.js.다운로드"></script>
+  <script type="text/javascript" src="./attendance/tooltipsy.min.js.다운로드"></script>
+  
+  <script type="text/javascript" src="./attendance/common.js.다운로드"></script>
+  <script type="text/javascript" src="./attendance/hrm.js.다운로드"></script>
+  <script type="text/javascript" src="./attendance/tax_script.js.다운로드"></script>
+  <script type="text/javascript" src="./attendance/default.js.다운로드"></script>
+  <script type="text/javascript" src="./attendance/UI.js.다운로드"></script>
+  <script type="text/javascript" src="./attendance/timer.js.다운로드"></script>
+
+  <!--<script type="text/javascript" src="./lib/timer.js"></script> 2017.02.27 개발 완료 후 오픈 예정 -->
+  <link rel="stylesheet" type="text/css" href="./attendance/crownix-viewer.min.css">
+  <link rel="shortcut icon" type="image/png" href="https://hrm.hongik.ac.kr/new/css/img/icon/Check13.png">
+  <link type="text/css" rel="stylesheet" href="./attendance/jquery-ui-1.10.2.custom.css">
+  <link type="text/css" rel="stylesheet" href="./attendance/reset.css">
+  <link type="Text/Css" rel="Stylesheet" href="./attendance/UI.css">
+  <link type="Text/Css" rel="Stylesheet" href="./attendance/common.css">
+  <link type="Text/Css" rel="Stylesheet" href="./attendance/zip.css">
+  <link type="Text/Css" rel="Stylesheet" href="./attendance/index.css">
+
+  <title> 홍익대학교 직원복무관리 </title>
+</head>
+<body>
+<!-- Top End //-->
+
+<!-- Main Start -->
+  <div>
+  <!-- Header Start -->
+    <div id="header">
+    	<a href="https://hrm.hongik.ac.kr/new/index.php" class="logo"></a>
+    	<div class="section title_section">
+    		<div class="inside">
+				<div class="main_title">직원복무관리</div>
+				<!-- 로그인 상태 -->
+				<div class="user_wrap">
+					<span class="user_name">
+						김진규						(jingyu.l.kim) 님 로그인 중
+					</span>
+					<span class="text0">최근 로그인 정보</span>
+					<span class="date">2018/01/01 16:57:59</span>
+				</div>
+				<!-- 로그인 상태 //-->
+				<!-- 자동로그아웃 -->
+				<div class="user_wrap1">
+					<span class="date mato5"><div id="login_timer" onclick="self.location.reload();">자동로그아웃까지 99분 45초 || <a class="btn"><b>연장</b></a></div></span>
+				</div>
+				<!-- 자동로그아웃 //-->
+			</div>
+        </div>    </div>
+  <!-- Header End //-->
+  
+  <!-- Aside Start -->
+    <div id="aside">
+	<ul>
+		<li>
+			<div>공지사항</div>
+			<ul>
+				<li><a href="https://hrm.hongik.ac.kr/new/h01/h010100.php">공지사항 조회</a></li>
+			</ul>
+		</li>
+		<li>
+			<div>출근부</div>
+			<ul>
+				<li><a href="https://hrm.hongik.ac.kr/new/h02/h020100.php">개인별 근태 현황</a></li>
+				<li><a href="https://hrm.hongik.ac.kr/new/h02/h020200.php">개인별 출근부 출력</a></li>
+		
+			</ul>
+		</li>
+		<li>
+			<div>복무</div>
+			<ul>
+				<li><a href="https://hrm.hongik.ac.kr/new/h03/h030100.php">개인별 복무 현황</a></li>
+				<!--<li ><a href="/new/h03/h030200.php">개인별 사용현황표 조회</a></li> 2017.11.23 삭제-->
+				<li><a href="https://hrm.hongik.ac.kr/new/h03/h030300.php">부서별 사용현황표 조회</a></li>
+				<li><a href="https://hrm.hongik.ac.kr/new/h03/h030500.php">연가일 변경·추가 신청</a></li>
+				<li><a href="https://hrm.hongik.ac.kr/new/h03/h031000.php">특별휴가 신청</a></li>
+				<li><a href="https://hrm.hongik.ac.kr/new/h03/h031100.php">병가 신청</a></li>
+				<li><a href="https://hrm.hongik.ac.kr/new/h03/h031200.php">공가 신청</a></li>
+				<li><a href="https://hrm.hongik.ac.kr/new/h03/h031300.php">출장·복명 신청</a></li>
+			</ul>
+		</li>
+
+
+    </ul></div>
+  <!-- Aside End //-->
+  
+  <!-- Body Start -->
+  <div id="body">
+    <div class="main">
+      <div class="section notice_section">
+        <div class="inside">
+          <form id="fm_index1" name="fm_index1" method="POST">
+            <input type="hidden" id="p_clock" name="p_clock" value="2018년 1월 2일 08시 44분 49초 ">
+            <input type="hidden" id="p_id" name="p_id">
+            <!-- 공지사항 -->
+            <div class="box0 box">
+              <div class="titl0">공지사항</div>
+              <div class="mato40"></div>
+              <ul class="ul0">
+                <li>
+                  <a class="not" onclick="notice_show(&#39;fm_index1&#39;, 20176)">[계약직원-교무팀소속] 연차휴가 사용 안내</a>
+                  <span class="date">2018/01/01</span>
+                </li>
+                <li>
+                  &nbsp;
+                  <span class="date">&nbsp;</span>
+                </li>
+                <li>
+                  &nbsp;
+                  <span class="date">&nbsp;</span>
+                </li>
+              </ul>
+              <div class="btn_more btn btn0"><a href="https://hrm.hongik.ac.kr/new/h01/h010100.php">MORE</a></div>
+            </div>
+            <!-- 출근 -->
+            <div class="box1 box">
+              <div class="titl0">출근</div>         
+                    <div class="txtc"><a class="btn7">출근</a></div>
+              <div class="titl4 mato10 mabo10">출근시간 09:00 / 퇴근시간 17:00</div>
+              <div class="titl3 mato10 mabo10" id="clock">2018년 1월 2일 08시 44분 49초 </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="section info_section">
+        <div class="inside">
+          <form id="fm_index2" name="fm_index2" method="POST">
+            <div class="titl0">출근·복무현황</div>
+            <div class="titl3">
+              <select class="select0" name="p_cal_year" onchange="index_search()">
+                <option value="2017">2017년</option>
+                <option value="2018" selected="">2018년</option>
+              </select>
+              <select class="select0" name="p_cal_month" onchange="index_search()">
+                <option value="1" selected="">1월</option>
+                <option value="2">2월</option>
+                <option value="3">3월</option>
+                <option value="4">4월</option>
+                <option value="5">5월</option>
+                <option value="6">6월</option>
+                <option value="7">7월</option>
+                <option value="8">8월</option>
+                <option value="9">9월</option>
+                <option value="10">10월</option>
+                <option value="11">11월</option>
+                <option value="12">12월</option>
+              </select>
+            </div>
+          </form>
+            <div class="table2 info_table">
+              <table>
+                <colgroup>
+                  <col>
+                  <col style="width:131px;">
+                  <col style="width:131px;">
+                  <col style="width:131px;">
+                  <col style="width:131px;">
+                  <col style="width:131px;">
+                  <col style="width:131px;">
+                  <col style="width:131px;">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <td><span class="txtcr">일</span></td>
+                    <td>월</td>
+                    <td>화</td>
+                    <td>수</td>
+                    <td>목</td>
+                    <td>금</td>
+                    <td><span class="txtcb">토</span></td>
+                </tr></thead>
+                <tbody>
+ 
+                  <tr> 
+ 
+                    <td style="height: 75px;">
+</td>
+ 
+                    <td style="height: 75px;">
+<span class="txtcr">                    1 <!-- AI -->
+ 신정  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 1)">1</a><br> AI-->
+                    </span>                    </td> 
+ 
+                    <td style="height: 75px;">
+                    2 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 2)">2</a><br> AI-->
+                    출근                    </td> 
+ 
+                    <td style="height: 75px;">
+                    3 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 3)">3</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    4 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 4)">4</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    5 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 5)">5</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+<span class="txtcb">                    6 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 6)">6</a><br> AI-->
+                    </span>                    </td> 
+ 
+                  </tr> 
+ 
+                  <tr> 
+ 
+                    <td style="height: 75px;">
+<span class="txtcr">                    7 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 7)">7</a><br> AI-->
+                    </span>                    </td> 
+ 
+                    <td style="height: 75px;">
+                    8 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 8)">8</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    9 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 9)">9</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    10 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 10)">10</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    11 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 11)">11</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    12 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 12)">12</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+<span class="txtcb">                    13 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 13)">13</a><br> AI-->
+                    </span>                    </td> 
+ 
+                  </tr> 
+ 
+                  <tr> 
+ 
+                    <td style="height: 75px;">
+<span class="txtcr">                    14 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 14)">14</a><br> AI-->
+                    </span>                    </td> 
+ 
+                    <td style="height: 75px;">
+                    15 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 15)">15</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    16 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 16)">16</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    17 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 17)">17</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    18 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 18)">18</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    19 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 19)">19</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+<span class="txtcb">                    20 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 20)">20</a><br> AI-->
+                    </span>                    </td> 
+ 
+                  </tr> 
+ 
+                  <tr> 
+ 
+                    <td style="height: 75px;">
+<span class="txtcr">                    21 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 21)">21</a><br> AI-->
+                    </span>                    </td> 
+ 
+                    <td style="height: 75px;">
+                    22 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 22)">22</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    23 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 23)">23</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    24 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 24)">24</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    25 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 25)">25</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    26 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 26)">26</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+<span class="txtcb">                    27 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 27)">27</a><br> AI-->
+                    </span>                    </td> 
+ 
+                  </tr> 
+ 
+                  <tr> 
+ 
+                    <td style="height: 75px;">
+<span class="txtcr">                    28 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 28)">28</a><br> AI-->
+                    </span>                    </td> 
+ 
+                    <td style="height: 75px;">
+                    29 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 29)">29</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    30 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 30)">30</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+                    31 <!-- AI -->
+  
+                    <br>
+                    <!-- <a class="btn" onclick="show_popup(2018, 1, 31)">31</a><br> AI-->
+                                        </td> 
+ 
+                    <td style="height: 75px;">
+</td>
+ 
+                    <td style="height: 75px;">
+</td>
+ 
+                    <td style="height: 75px;">
+</td>
+ 
+                  </tr> 
+ 
+                </tbody>
+              </table>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Body End //-->
+  <!-- Layer popup -->
+  <div id="popup_bg1" class="popup_bg"></div>
+  <div id="popup_layer1" class="popup_layer">
+    <div class="popup_container">
+      <!-- Content -->
+      <div class="pop-btn mato10">
+       <a href="https://hrm.hongik.ac.kr/new/index.php#" class="btn-close cbtn">´Y±a</a>
+      </div>
+      <div class="pop-txt alert1" id="pop-txt"></div>
+      <!-- Content //-->
+    </div>
+  </div>
+  <!-- Layer popup //-->
+  </div>
+<!-- Main End //-->
+<!-- Bottom Start -->
+  
+
+<!-- script Start -->
+<script>
+$(document).ready(function() {
+  
+  // 1. setClock
+  setClock(0);
+});
+
+// 서버시간
+function setClock(i) {
+
+  var time_value = 1514850275*1000+i; 
+  var now = new Date(); 
+
+  now.setTime(time_value);
+  
+  var Years  = now.getFullYear();
+  var Months = now.getMonth()+1;
+  var Days   = now.getDate();
+  var Hours  = now.getHours(); 
+  var Minutes= now.getMinutes(); 
+  var Seconds= now.getSeconds(); 
+
+  var cg_Value = Years+'년 '+Months+'월 '+Days+'일 ' ;
+  cg_Value+= ((Hours <10) ? '0' : '') + Hours+'시 ';
+  cg_Value+= ((Minutes <10) ? '0' : '') + Minutes+'분 ';
+  cg_Value+= ((Seconds <10) ? '0' : '') + Seconds+'초 ';
+  
+  document.getElementById('p_clock').value   = cg_Value;
+  document.getElementById('clock').innerHTML = cg_Value;
+
+  i=i+1000; 
+
+  setTimeout ('setClock('+i+')', 1000); 
+}
+
+// 팝업
+function show_popup(Years, Months, Days){
+
+  var temp = $('#popup_layer1'); 
+  var bg = temp.prev().hasClass('popup_bg');  
+  var al = temp.find('span');
+  
+
+  var y  = Years;
+  var m  = Months;
+  var d  = Days;
+  
+  $.ajax({
+    url:'index_calander.php',
+    type:'get',
+    dataType:'html',
+    data:'year='+Years+'&month='+Months+'&day='+Days,
+    error:function(){
+      alert('Error!!');
+    },
+    success:function(data){
+      //alert('Success!!')
+      //var test = data;
+      $('#pop-txt').html(data);
+    }
+  });
+
+  if(bg){
+    $('.popup_layer').fadeIn();
+    $('.popup_bg').css('display', 'block');
+  }
+  else{
+    temp.fadeIn();
+  }
+  
+  var iHeight = (document.body.clientHeight / 2) - temp.height() / 2 + document.body.scrollTop;
+  var iWidth = (document.body.clientWidth / 2) - temp.width() / 2 + document.body.scrollLeft;
+
+  if (iHeight > 0 && iWidth > 0) {
+    temp.css('top',  iHeight+'px');
+    temp.css('left', iWidth+'px');
+  }
+  else {
+    temp.css('top',  '50px');
+    temp.css('left', '50px');
+  }
+    
+  // ´Y±a
+  temp.find('a.btn-close').click(function(e){
+    if(bg){
+      $('.popup_layer').fadeOut();
+      $('.popup_bg').css('display', 'none');
+    }else{
+      temp.fadeOut();
+    }
+  });
+
+  $('.popup_layer .popup_bg').click(function(e){
+    $('.popup_layer').fadeOut();
+  });
+
+  $('#pop-txt').append(y + " / " + m + " / " + d);
+  $('#pop-txt').append(y + " / " + m + " / " + d);
+
+} 
+</script>
+<!-- script End //-->
+</body></html>

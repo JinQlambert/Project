@@ -1,0 +1,102 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+*{
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	box-sizing:border-box;
+}
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video{
+	margin:0;
+	padding:0;
+	border:0;
+	font-size:100%;
+	vertical-align:baseline;
+	word-break:keep-all;
+}
+caption{ display:none; }
+td{ vertical-align:middle; }
+/*안드로이드 탭색상제거*/
+/*body{ -webkit-tap-highlight-color:rgba(0, 0, 0, 0); -webkit-higlight-color:rgba(0, 0, 0, 0) }*/
+/*iOS 이미지 컨텍스트 메뉴 막기*/
+img{ -webkit-touch-callout:none; }
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section{ display:block; }
+select{ cursor:pointer; box-sizing:border-box; border-top:1px solid #BABABA; border-left:1px solid #BABABA; border-bottom:1px solid #DDD; border-right:1px solid #DDD; }
+ol, ul{ list-style:none; }
+blockquote, q{ quotes:none; }
+blockquote:before, blockquote:after,
+q:before, q:after{ content:''; content:none; }
+table{ border-collapse:collapse; border-spacing:0; }
+a{ display:inline-block; text-decoration:none; color:inherit; }
+a.line:hover{ text-decoration:underline; }
+a > img{ display:block; }
+iframe{ display:block; width:100%; height:0px; overflow:hidden; }
+.btn{ cursor:pointer; }
+input{ outline:none; margin:0; padding:0; font-size:100%; vertical-align:baseline; }
+input[type=text],
+input[type=password]{ padding-left:3px; padding-right:3px; font-size:13px; box-sizing:border-box; border-top:1px solid #BABABA; border-left:1px solid #BABABA; border-bottom:1px solid #DDD; border-right:1px solid #DDD; }
+input[type=checkbox]{ cursor:pointer; }
+input[type=radio]{ cursor:pointer; }
+label{ cursor:pointer; }
+button{ cursor:pointer; background:none; border:0; color:inherit; font:inherit; line-height:normal; overflow:visible; padding:0; -webkit-appearance:button; -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; }
+button:focus{ outline:none; }
+/**/
+html, body, div, pre, h1, h2, h3, h4, h5, h6, th, td, input, textarea, select, button{ font-family:'맑은고딕', 'Malgun Gothic', Dotum, '돋움', Arial, sans-serif; }
+.middle_box > *{ vertical-align:middle; }
+.noselect{ -webkit-touch-callout:none; -webkit-user-select:none; -khtml-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none; }
+.preload{ position:fixed; top:-10000px; left:-10000px; }
+.pointer{ cursor:pointer; }
+.float_clear:after{ content:""; display:block; clear:both; }
+.float_left{ float:left; }
+.float_right{ float:right; }
+.txtl{ text-align:left !important; }
+.txtc{ text-align:center !important; }
+.txtr{ text-align:right !important; }
+.relative{ position:relative; }
+.ell{ padding-right:10px; box-sizing:border-box; width:100%; text-overflow:ellipsis; white-space:nowrap; overflow:hidden; }
+.layer_pop{ z-index:9999; position:fixed; top:0px; left:0px; }
+.layer_pop{ transition:all 300ms cubic-bezier(0.215, 0.610, 0.355, 1.000); }
+.bold{ font-weight:bold; }
+.hover_btn{ display:inline-block; position:relative; }
+.hover_btn > img{ display:none; }
+.hover_btn > img:first-child{ display:block; }
+.hover_btn.on > img,
+.hover_btn:hover > img{ display:block; }
+.hover_btn.on > img:first-child,
+.hover_btn:hover > img:first-child{ display:none; }
+.block{ display:block; width:100%; }
+.dim{
+	pointer-events:none;
+	position:fixed; top:0px; left:0px;
+	width:100%; height:100%;
+	z-index:9999;
+	background:rgba(0, 0, 0, 0.5);
+	/*
+	  IE8이하는 rgba가 동작하지 않기 때문에 배경 투명도 적용을 위해 filter의 gradient을 대체 이용한다.
+	  컬러값 60000000의 8자리 숫자의 의미: 앞 60 불투명도, 나머지 6자리 컬러값.
+	  startColorstr와 endColorstr의 색을 같게 하여 배경 투명도 처리를 하는것.
+	  하지만 원래는 그라데이션 처리하는 기법이기 때문에 같은 60% 투명도라고 해도 약간의 차이는 있다.
+	*/
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#60000000, endColorstr=#60000000);
+	zoom:1; /* 일반적이진 않지만 ie6, 7 에서 적용 안되는경우 선언. */
+}
+textarea{ box-sizing:border-box; border-top:1px solid #BABABA; border-left:1px solid #BABABA; border-bottom:1px solid #DDD; border-right:1px solid #DDD; }
+.TABLE{ display:table; }
+.ROW{ display:table-row; }
+.CELL{ display:table-cell; }
+
+

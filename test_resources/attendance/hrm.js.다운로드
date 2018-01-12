@@ -1,0 +1,2563 @@
+function logout() {
+    location.replace("../logout.php");
+}
+function goBack() {
+    window.history.back();
+}
+
+function numkeyCheck(event) { 
+  event = event || window.event;
+  var keyID = (event.which) ? event.which : event.keyCode;
+  if( ( keyID >=48 && keyID <= 57 ) || ( keyID >=96 && keyID <= 105 ) || keyID == 8 || keyID == 46 || keyID == 37 || keyID == 39 )
+  {
+    return;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+function datePicker(id, Mindate, Maxdate) {
+
+  var temp = $('#'+id);
+
+  $(temp).datepicker({
+      dateFormat       :'yymmdd',
+      showOtherMonths  : true,
+      selectOtherMonths: true,      
+      dayNamesMin      : ['일', '월', '화', '수', '목', '금', '토' ],
+      monthNamesShort  : ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+      showButtonPanel  : true,
+      minDate          : Mindate,
+      maxDate          : Maxdate
+      //closeText: 'Clear',
+      //onClose: function(dateText, inst) {
+      //  if ($(window.event.srcElement).hasClass('ui-datepicker-close')) {
+      //    document.getElementById(id).value = '';
+      //  }
+      //}
+  });
+  
+  $.datepicker._gotoToday = function(temp) { 
+    $(temp).datepicker('setDate', new Date()).datepicker('hide').blur(); 
+  };
+    
+  $('img.ui-datepicker-trigger').css({'position':'relative','left':'2px','bottom':'2px'});
+}
+
+
+function login_header() {
+  
+  obj  =  document.fm_header;
+
+  //obj.action = 'header_login.php';
+  obj.action = '/new/header_login.php';
+  obj.method = 'post';
+  obj.submit();
+}
+
+/* 성명 검색 */ 
+function search_name(Page) {
+  
+  obj = (new Function( 'return ' + 'document.fm_'+Page))(); 
+
+  var username = obj.p_search_username.value; // 성명
+
+  //console.log("search_name username : "+username);
+
+  //if (username.length < 2) {
+  //  alert("성명은 두글자 이상 입력하세요.");
+  //  return false;
+  //}
+  var getUserid = function(callback) {
+    $.ajax({
+      url  : "/new/lib/search_userid.php",
+      type : "GET",
+      data : "targetname="+username,
+      error:function(){
+        alert("성명을 다시 입력해주시기 바랍니다.");
+      },
+      success:function(data) {
+        // 0명
+        if(data=="nodata"){
+          alert("검색 대상에 존재하지 않습니다.");
+        }
+        // 2명 이상
+        else if(data=="multi"){
+          console.log("multi");
+          samename_popup(Page, username); // 성명 선택 레이어 팝업
+        }
+        // 1명
+        else {
+          json = eval("(" + data + ")");
+          $.each(json.list, function(key,state){
+            temp = state;
+            callback(temp);
+          });
+        }
+      }
+    });
+  }
+  
+  // 1명
+  getUserid(function(Temp) {
+
+    //console.log(Temp);
+    obj.p_search_userid.value   = Temp.userid;
+    obj.p_search_username.value = Temp.username;
+
+    //obj.action = './h020100.php';
+    obj.action = './'+Page+'.php';
+    obj.method = 'post';
+    obj.target = '_self';
+    obj.submit();
+  });
+}
+
+/* 성명 선택 레이어팝업 */
+function samename_popup(Page, Username) {
+
+  var temp = $('#popup_layer1');    //레이어의 id를 temp변수에 저장
+  var bg = temp.prev().hasClass('popup_bg');  //dimmed 레이어를 감지하기 위한 boolean 변수
+
+  $.ajax({
+    url:'/new/lib/search_samename.php',
+    type:'get',
+    dataType:'html',
+    data:'targetname='+Username,
+    error:function(){
+      alert('Error!!');
+    },
+    success:function(data){
+      //alert('Success!!')
+      //var test = data;
+      $('#pop-table').html(data);
+    }
+  });
+  
+  // 바탕
+  if(bg){
+    $('#popup_layer1').fadeIn();
+    $('#popup_bg1').css('display', 'block');
+  }
+  else{
+    temp.fadeIn();  //bg 클래스가 없으면 일반레이어로 실행한다.
+  }
+
+  // 화면의 중앙에 레이어를 띄운다.
+  var iHeight = (document.body.clientHeight / 2) - temp.height() / 2 + document.body.scrollTop;
+  var iWidth = (document.body.clientWidth / 2) - temp.width() / 2 + document.body.scrollLeft;
+
+  if (iHeight > 0 && iWidth > 0) {
+    //temp.css('top',  iHeight+'px');
+    //temp.css('left', iWidth+'px');
+    temp.css('top',  '50px');
+    temp.css('left', '50px');
+  }
+  else {
+    temp.css('top',  '50px');
+    temp.css('left', '50px');
+  }
+
+  // 확인
+  temp.find('a.btn-submit').click(function(e){
+
+    // Get userid, username
+    var gobj = document.fm_search_samename;
+
+    if(!$(':input:radio[name=trow]:checked').val()) {
+      alert("대상자를 선택해주세요.");
+      return false;
+    }
+
+    for (var i=0; i<$(':input:radio[name=trow]').length;i++){
+      if (gobj.trow[i].checked == true) {
+        var guserid   = gobj.userid[i].value;
+        var gusername = gobj.username[i].value;
+      }
+    }
+
+    // Set userid, username
+    obj.p_search_userid.value   = guserid;
+    obj.p_search_username.value = gusername;
+
+    if(bg){
+      $('#popup_layer1').fadeOut();
+      $('#popup_bg1').css('display', 'none');
+    }else{
+      temp.fadeOut();   //레이어가 사라진다.
+    }
+
+    //obj.action = './h020100.php';
+    obj.action = './'+Page+'.php';
+    obj.method = 'post';
+    obj.target = '_self';
+    obj.submit();
+  });
+    
+  // 닫기
+  temp.find('a.btn-close').click(function(e){
+    if(bg){
+      $('#popup_layer1').fadeOut();
+      $('#popup_bg1').css('display', 'none');
+    }else{
+      temp.fadeOut();   //레이어가 사라진다.
+    }
+  });
+
+  $('#popup_layer1 #popup_bg1').click(function(e){
+    $('#popup_layer1').fadeOut();
+  });
+}
+
+/* 홈 - 출근 */
+function index_attend() {
+
+  obj  =  document.fm_index1;
+
+  obj.action = './attendance_clicked.html';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+} 
+
+/* 홈 - 근태·복무 현황 달력 검색 */
+function index_search() {
+
+  obj  =  document.fm_index2;
+
+  obj.action = './index.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 공지사항조회 - 제목 클릭시 상세페이지 이동 */
+function notice_show(form, id) {
+
+  frm  =  document.getElementById(form);
+  //obj.action = './h010101.php';
+  frm.action = '/new/h01/h010101.php';
+  frm.p_id.value = id;
+  frm.method = 'post';
+  frm.target = '_self';
+  frm.submit();
+}
+
+/* 공지사항 조회 - 조회 */
+function search_h010100() {
+
+  obj  =  document.fm_h010100;
+
+  obj.action = './h010100.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 개인별 근태 현황 - 조회 
+   Admin 1=관리자,그외=일반사용자 */
+function search_h020100(Page, Admin) {
+  obj = document.fm_h020100;
+  
+  var begymd = obj.p_search_begymd.value;
+  var endymd = obj.p_search_endymd.value;
+
+
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+  
+  if (Admin==1) {
+    var username = obj.p_search_username.value;
+
+    if ((!username || username.length > 0) && username.length < 2) {
+      alert("성명은 두글자 이상 입력하세요.");
+      return false;
+    }
+  
+    search_name(Page);
+  }
+  else {
+    obj.action = './h020100.php';
+    obj.method = 'post';
+    obj.target = '_self';
+    obj.submit();
+  }
+}
+
+/* 개인별 근태 현황 - 저장 */
+function save_h020100(no){
+
+  obj = document.fm_h020100;
+  obj.p_no.value = no;
+  
+  obj.action = './h020101.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 개인별 출근부 출력 - 조회 
+   Admin 1=관리자,그외=일반사용자 */
+function search_h020200(Page, Admin) {
+  
+  obj = document.fm_h020200;
+  
+  if (Admin==1) {
+    var username = obj.p_search_username.value;
+  
+    if ((!username || username.length > 0) && username.length < 2) {
+      alert("성명은 두글자 이상 입력하세요.");
+      return false;
+    }
+  
+    search_name(Page);
+  }
+  else {
+    obj.action = './h020200.php';
+    obj.method = 'post';
+    obj.target = '_self';
+    obj.submit();
+  }
+}
+
+/* 출근부 출력 - 조회 */
+function search_h020300() {
+
+  obj  =  document.fm_h020300;
+
+  obj.action = './h020300.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 현황표 출력 - 조회 */
+function search_h020400(Page) {
+  obj = document.fm_h020400;
+  
+  var begymd = obj.p_search_begymd.value;
+  var endymd = obj.p_search_endymd.value;
+
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+
+  var username = obj.p_search_username.value;
+
+  if (username.length > 0 ) {
+    if (username.length < 2) {
+      alert("성명은 두글자 이상 입력하세요.");
+      return false;
+    }
+    // 다른 조회조건 초기화
+    obj.p_search_campus.value = 0;
+    obj.p_search_groupid.value = 'ALL';
+    obj.p_search_usertype.value = 0;
+  }
+
+  obj.action = './h020400.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 일괄결근처리 - 조회 */
+function search_h020500() {
+
+  obj  =  document.fm_h020500;
+
+  obj.action = './h020500.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 일괄결근처리 - 결근처리 */
+function modify_h020500() {
+
+  obj  =  document.fm_h020500;
+
+  obj.action = './h020501.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 전담예외코드관리 - 등록 */
+function insert_h021000() {
+
+  obj  =  document.fm_h021000;
+
+  obj.action = './h021001.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 전담예외코드관리 - 등록 - 추가 */
+function insert_h021001() {
+
+  obj  =  document.fm_h021001;
+
+  var codename = obj.p_codename.value;
+
+  if (codename.length <= 0) {
+    alert("코드명을 입력해주시기 바랍니다.");
+    obj.p_codename.focus();
+    return false;
+  }
+
+  obj.action = './h02100101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 전담예외코드관리 - 상세조회 */
+function search_h021000(code) {
+
+  obj  =  document.fm_h021000;
+  obj.p_code.value = code;
+
+  obj.action = './h021002.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 전담예외코드관리 - 상세조회 - 저장 */
+function save_h021002(code) {
+
+  obj  =  document.fm_h021002;
+  obj.p_code.value = code;
+
+  obj.action = './h02100201.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 예외 전담근무자 등록 - 조회 */
+function search_h021100() {
+  
+  obj = document.fm_h021100;
+   
+  var begymd = obj.p_search_begymd.value;
+  var endymd = obj.p_search_endymd.value;
+
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+
+  var username = obj.p_search_username.value;
+
+  if (username.length > 0) {
+    if (username.length < 2) {
+      alert("성명은 두글자 이상 입력하세요.");
+      return false;
+    }
+    // 다른 조회조건 초기화
+    obj.p_search_campus.value = 0;
+    obj.p_search_groupid.value = 'ALL';
+    obj.p_search_usertype.value = 0;
+    obj.p_search_code.value = 0;
+  }
+
+  obj.action = './h021100.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 예외 전담근무자 등록 - 등록 */
+function insert_h021100() {
+
+  obj  =  document.fm_h021100;
+
+  obj.action = './h021101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 예외 전담근무자 등록 - 등록 - 성명 검색*/
+function search_h021101(Page) {
+  
+  obj = document.fm_h021101;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length > 0 && username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+
+/* 예외 전담근무자 등록 - 등록 - 추가 */
+function insert_h021101() {
+
+  obj  =  document.fm_h021101;
+
+  var userid    = obj.p_search_userid.value;
+  var campus    = obj.p_campus.value;
+  var groupid   = obj.p_groupid.value;
+  var groupname = obj.p_groupname.value;
+  var usertype  = obj.p_usertype.value;
+  var begymd    = obj.p_begymd.value;
+  var endymd    = obj.p_endymd.value;
+
+
+  if (userid.length <= 0 || campus.length <= 0 || groupid.length <= 0 || groupname.length <= 0 || usertype.length <= 0) {
+    alert("근무자를 선택해주시기 바랍니다.");
+    obj.p_search_username.focus();
+    return false;
+  }
+  
+  if (begymd <= 0 || endymd <= 0 ) {
+    alert("예외시작일 또는 예외종료일을 선택하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+  
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h02110101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 예외 전담근무자 등록 - 수정 */
+function modify_h021100(seq){
+
+  obj = document.fm_h021100;
+  obj.p_seq.value = seq;
+  
+  obj.action = './h021102.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 예외 전담근무자 등록 - 수정 - 저장 */
+function save_h021102(){
+
+  obj = document.fm_h021102;
+  
+  obj.action = './h02110201.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 예외 전담근무자 등록 - 수정 - 삭제 */
+function delete_h021102(){
+
+  obj = document.fm_h021102;
+  
+  obj.action = './h02110202.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 예외 교대근무자 등록 - 등록 */
+function insert_h021200() {
+
+  obj  =  document.fm_h021200;
+
+  obj.action = './h021201.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 예외 교대근무자 등록 - 조회 */
+function search_h021200() {
+  
+  obj = document.fm_h021200;
+   
+  var begym = (obj.p_search_begyear.value.concat(lpad(obj.p_search_begmonth.value, 2, 0)))*1;
+  var endym = (obj.p_search_endyear.value.concat(lpad(obj.p_search_endmonth.value, 2, 0)))*1;
+
+  if (begym > endym) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endmonth.focus();
+    return false;
+  }
+
+  var username = obj.p_search_username.value;
+
+  if (username.length > 0) {
+    if (username.length < 2) {
+      alert("성명은 두글자 이상 입력하세요.");
+      return false;
+    }
+    // 다른 조회조건 초기화
+    obj.p_search_campus.value = 0;
+    obj.p_search_groupid.value = 'ALL';
+    obj.p_search_usertype.value = 0;
+  }
+
+  obj.action = './h021200.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 예외 교대근무자 등록 - 등록 - 성명 검색*/
+function search_h021201(Page) {
+  
+  obj = document.fm_h021201;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length > 0 && username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+
+/* 예외 교대근무자 등록 - 등록 - 추가 */
+function insert_h021201(no) {
+
+  obj  =  document.fm_h021201;
+  obj.p_no.value = no;
+
+  var userid    = obj.p_search_userid.value;
+
+  if (userid.length <= 0) {
+    alert("근무자를 선택해주시기 바랍니다.");
+    obj.p_search_username.focus();
+    return false;
+  }
+
+  obj.action = './h02120101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 예외 교대근무자 등록 - 수정 */
+function modify_h021200(id){
+
+  obj = document.fm_h021200;
+  obj.p_id.value = id;
+  
+  obj.action = './h021202.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 예외 교대근무자 등록 - 수정 - 저장 */
+function save_h021202(no){
+
+  obj = document.fm_h021202;
+  obj.p_no.value = no;
+
+  obj.action = './h02120201.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 예외 전담근무자 등록 - 수정 - 삭제 */
+function delete_h021202(){
+
+  obj = document.fm_h021202;
+  
+  obj.action = './h02120202.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 공휴일관리 - 조회 */
+function search_h060100() {
+
+  obj  =  document.fm_h060100;
+
+  obj.action = './h060100.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 공휴일관리 - 추가 */
+function insert_h060100() {
+
+  obj  =  document.fm_h060100_2;
+
+  var ymd      = obj.p_ymd.value;
+  var comments = obj.p_comment.value;
+
+  if (ymd.length <= 0) {
+    alert("연월일을 선택해주시기 바랍니다.");
+    obj.p_ymd.focus();
+    return false;
+  }
+
+  if (comments.length <= 0) {
+    alert("비고를 선택해주시기 바랍니다.");
+    obj.p_comment.focus();
+    return false;
+  }
+
+  obj.action = './h060101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 공휴일관리 - 수정 */
+function modify_h060100(No) {
+
+  obj  =  document.fm_h060100;
+
+  obj.p_no.value    = No;
+
+  con = confirm('수정하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h060102.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 공휴일관리 - 삭제 */
+function delete_h060100(No) {
+
+  obj  =  document.fm_h060100;
+
+  obj.p_no.value    = No;
+
+  con = confirm('삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h060103.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+
+/* 부서별 관리자 등록 - 조회 */
+function search_h060200() {
+
+  obj  =  document.fm_h060200;
+
+  obj.action = './h060200.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 등록 */
+function insert_h060200() {
+
+  obj  =  document.fm_h060200;
+
+  obj.action = './h060201.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 등록 - 성명 검색*/
+function search_h060201(Page) {
+  
+  obj = document.fm_h060201;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length > 0 && username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+
+/* 부서별 관리자 등록 - 등록 - 추가 */
+function insert_h060201() {
+
+  obj  =  document.fm_h060201;
+
+  var userid    = obj.p_search_userid.value;
+
+  if (userid.length <= 0) {
+    alert("근무자를 선택해주시기 바랍니다.");
+    obj.p_search_username.focus();
+    return false;
+  }
+
+  var ip    = obj.p_ip.value;
+  
+  if (ip.length <= 0) {
+    alert("IP 입력은 필수입니다.");
+    obj.p_ip.focus();
+    return false;
+  }
+
+
+  obj.action = './h06020101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 권한 회수 */
+function delete_h060200() {
+
+  obj  =  document.fm_h060200;
+
+  obj.action = './h060202.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 권한 회수 - 담당자 선택 */
+function search_h060202() {
+
+  obj  =  document.fm_h060202;
+
+  obj.action = './h060202.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 권한 회수 - 회수 */
+function delete_h060202() {
+
+  obj  =  document.fm_h060202;
+
+  obj.action = './h06020201.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 권한 이양 */
+function transfer_h060200() {
+
+  obj  =  document.fm_h060200;
+
+  obj.action = './h060203.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 권한 이양 - 전임자 선택 */
+function select_h060203() {
+  
+  obj  =  document.fm_h060203;
+
+  obj.action = './h060203.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 권한 이양 - 후임자 검색*/
+function search_h060203(Page) {
+  
+  obj = document.fm_h060203;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length > 0 && username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+
+/* 부서별 관리자 등록 - 권한 이양 - 이양 */
+function modify_h060203() {
+
+  obj  =  document.fm_h060203;
+
+  obj.action = './h06020301.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 수정 */
+function modify_h060200(Seq, Userid) {
+
+  obj  =  document.fm_h060200;
+
+  obj.p_seq.value = Seq;
+  obj.p_userid.value = Userid;
+
+  obj.action = './h060204.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+
+/* 부서별 관리자 등록 - 수정 - 수정 */
+function modify_h060204() {
+
+  obj  =  document.fm_h060204;
+
+  var ip    = obj.p_ip.value;
+  
+  if (ip.length <= 0) {
+    alert("IP 입력은 필수입니다.");
+    obj.p_ip.focus();
+    return false;
+  }
+
+  obj.action = './h06020401.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 개인별 복무 현황 - 조회 */
+function search_h030100(Page, Admin) {
+  
+  obj = document.fm_h030100;
+
+  /*
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+  */
+
+  if (Admin==1) {
+    var username = obj.p_search_username.value;
+
+    if ((!username || username.length > 0) && username.length < 2) {
+      alert("성명은 두글자 이상 입력하세요.");
+      return false;
+    }
+  
+    search_name(Page);
+  }
+  else {
+    obj.action = './h030100.php';
+    obj.method = 'post';
+    obj.target = '_self';
+    obj.submit();
+  }
+}
+/* 개인별 사용현황표 출력 - 조회 */
+function search_h030200(Page, Admin) {
+  
+  obj = document.fm_h030200;
+
+  /*
+  var username = obj.p_search_username.value;
+  
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+  */
+
+  if (Admin==1) {
+    var username = obj.p_search_username.value;
+
+    if ((!username || username.length > 0) && username.length < 2) {
+      alert("성명은 두글자 이상 입력하세요.");
+      return false;
+    }
+  
+    search_name(Page);
+  }
+  else {
+    obj.action = './h030200.php';
+    obj.method = 'post';
+    obj.target = '_self';
+    obj.submit();
+  }
+}
+/* 사용현황표 출력 - 조회 */
+function search_h030300() {
+
+  obj  =  document.fm_h030300;
+
+  obj.action = './h030300.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가신청서 입력 - 조회 */
+function search_h030400(Page) {
+  
+  obj = document.fm_h030400;
+
+  obj.action = './h030400.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가신청서 입력 - 추가 */
+function insert_h030400() {
+  obj  =  document.fm_h030400;
+
+  obj.action = './h030401.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 연가신청서 입력 - 추가 - 성명 검색*/
+function search_h030401(Page) {
+  
+  obj = document.fm_h030401;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+/* 연가신청서 입력 - 추가 - 추가 */
+function insert_h030401() {
+  obj  =  document.fm_h030401;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+
+  if (begymd > endymd) {
+    alert("시작일자보다 종료일자이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h03040101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가신청서 입력 - 수정 */
+function modify_h030400(Userid, Ymd) {
+
+  obj  =  document.fm_h030400;
+
+  obj.p_userid.value = Userid;
+  obj.p_ymd.value = Ymd;
+
+  obj.action = './h030402.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 연가신청서 입력 - 수정 - 수정 */
+function modify_h030402() {
+
+  obj  =  document.fm_h030402;
+  
+  var ymd        = obj.p_ymd.value;
+  var modify_ymd = obj.p_modify_ymd.value;
+
+  if (modify_ymd.length != 8) {
+    alert("수정일자를 선택해주세요.");
+    return false;
+  }
+  if (ymd == modify_ymd) {
+    alert("기존 신청일자와 수정일자가 같습니다.");
+    return false;
+  }
+
+  obj.action = './h03040201.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 연가신청서 입력 - 삭제 */
+function delete_h030400(Userid, Ymd) {
+
+  obj  =  document.fm_h030400;
+
+  obj.p_userid.value = Userid;
+  obj.p_ymd.value = Ymd;
+
+  con = confirm('삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h030403.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 연가신청서입력기간 - 추가 */
+function insert_h060300() {
+
+  obj  =  document.fm_h060300_2;
+
+  var insert_begymd = obj.p_insert_begymd.value;
+  var insert_endymd = obj.p_insert_endymd.value;
+
+  if (insert_begymd > insert_endymd) {
+    alert("입력 및 제출기한 시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_insert_endymd.focus();
+    return false;
+  }
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+
+  if (begymd > endymd) {
+    alert("사용기한 시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h060301.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가신청서입력기간 - 수정 */
+function modify_h060300(No) {
+
+  obj  =  document.fm_h060300;
+
+  obj.p_no.value  = No;
+
+  con = confirm('수정하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h060302.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 연가신청서입력기간 - 삭제 */
+function delete_h060300(No) {
+
+  obj  =  document.fm_h060300;
+
+  obj.p_no.value  = No;
+
+  con = confirm('삭제하시겠습니까? 해당 학년도, 학기에 입력된 개인별 연가신청서도 함께 삭제됩니다.');
+  if (con == 1) {
+    obj.action = './h060303.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 연가일 변경·추가 신청 - 조회 */
+function search_h030500() {
+  
+  obj = document.fm_h030500;
+
+  var begymd = obj.p_search_begymd.value;
+  var endymd = obj.p_search_endymd.value;
+
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h030500.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 추가 */
+function insert_h030500() {
+  obj  =  document.fm_h030500;
+
+  obj.action = './h030501.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 추가신청 - 성명 검색*/
+function search_h030501(Page) {
+  
+  obj = document.fm_h030501;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+/* 연가일 변경·추가 신청 - 추가신청 - 추가 */
+function insert_h030501() {
+  obj  =  document.fm_h030501;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var comment1 = obj.p_comment1.value;
+  
+  if (!comment1) {
+    alert("사유를 입력하세요.");
+    obj.p_comment1.focus();
+    return false;
+  }
+
+  var comment2 = obj.p_comment2.value;
+  
+  if (!comment2) {
+    alert("체재지(연락처)를 입력하세요.");
+    obj.p_comment2.focus();
+    return false;
+  }
+
+  obj.action = './h03050101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 수정 */
+function modify_h030500(Schoolyear, Userid, id, Seq) {
+
+  obj  =  document.fm_h030500;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+  obj.p_seq.value        = Seq;
+
+  obj.action = './h030502.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 수정 - 수정 */
+function modify_h030502() {
+
+  obj  =  document.fm_h030502;
+
+  var gubun =  obj.p_gubun.value;
+
+  if(!gubun || gubun<2 || gubun>4) {
+    alert("1 수정할 수 없는 신청 건 입니다.");
+    return false;
+  }
+
+  var id    =  obj.p_id.value;
+  var seq   =  obj.p_seq.value;
+
+  if(!id || !seq) {
+    alert("2 수정할 수 없는 신청 건 입니다.");
+    return false;
+  }
+  
+  if(gubun==2||gubun==3) {
+    var ymd        = obj.p_ymd.value;
+    var modify_ymd = obj.p_modify_ymd.value;
+
+    if (modify_ymd.length != 8) {
+      alert("수정일자를 선택해주세요.");
+      return false;
+    }
+    if (ymd == modify_ymd) {
+      alert("기존 신청일자와 수정일자가 같습니다.");
+      return false;
+    }
+  }
+
+  var comment1 = obj.p_comment1.value;
+  
+  if (!comment1) {
+    alert("사유를 입력하세요.");
+    obj.p_comment1.focus();
+    return false;
+  }
+
+  var comment2 = obj.p_comment2.value;
+  
+  if (!comment2) {
+    alert("체재지(연락처)를 입력하세요.");
+    obj.p_comment2.focus();
+    return false;
+  }
+
+  obj.action = './h03050201.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 삭제 */
+function delete_h030500(Schoolyear, Userid, id, Seq) {
+
+  obj  =  document.fm_h030500;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+  obj.p_seq.value        = Seq;
+
+  con = confirm('삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h030503.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 연가일 변경·추가 신청 - 변경신청 */
+function change_h030500() {
+  obj  =  document.fm_h030500;
+
+  obj.action = './h030504.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 변경신청 - 성명 검색*/
+function search_h030504(Page) {
+  
+  obj = document.fm_h030504;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+/* 연가일 변경·추가 신청 - 변경신청 - 신청 */
+function insert_h030504() {
+  
+  obj = document.fm_h030504;
+
+  var change_ymd = obj.p_change_ymd.value;
+
+  if (change_ymd.length != 8) {
+    alert("변경 후 일자를 선택해주세요.");
+    return false;
+  }
+
+  var comment1 = obj.p_comment1.value;
+  
+  if (!comment1) {
+    alert("사유를 입력하세요.");
+    obj.p_comment1.focus();
+    return false;
+  }
+
+  var comment2 = obj.p_comment2.value;
+  
+  if (!comment2) {
+    alert("체재지(연락처)를 입력하세요.");
+    obj.p_comment2.focus();
+    return false;
+  }
+
+  obj.action = './h03050401.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 취소신청 */
+function cancle_h030500() {
+  obj  =  document.fm_h030500;
+
+  obj.action = './h030505.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 취소신청 - 성명 검색*/
+function search_h030505(Page) {
+  
+  obj = document.fm_h030505;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+/* 연가일 변경·추가 신청 - 취소신청 - 신청 */
+function insert_h030505() {
+  
+  obj = document.fm_h030505;
+
+  obj.action = './h03050501.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 확인 */
+function check_h030500(Schoolyear, Userid, id, Seq, Check) {
+  
+  obj = document.fm_h030500;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+  obj.p_seq.value        = Seq;
+  obj.p_check.value      = Check;
+
+  obj.action = './h030506.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 출력 */
+function print_h030500() {
+  obj  =  document.fm_h030500;
+
+  obj.action = './h030507.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 연가일 변경·추가 신청 - 출력 - 성명 검색*/
+function search_h030507(Page) {
+  
+  obj = document.fm_h030507;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+/* 개인별 연차휴가 기초자료 - 조회 */
+function search_h060400() {
+
+  obj  =  document.fm_h060400;
+
+  obj.action = './h060400.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 개인별 연차휴가 기초자료  - 다운로드 */
+function  downLoad_h060400() {
+
+  obj = document.fm_h060400;
+
+  obj.action = './h060401.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 개인별 연차휴가 기초자료 - 수정 */
+function modify_h060400(No, Schoolyear, Userid) {
+
+  obj  =  document.fm_h060400;
+  
+  obj.p_no.value                = No;
+  obj.p_search_schoolyear.value = Schoolyear;
+  obj.p_userid.value            = Userid;
+
+  obj.action = './h060402.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 개인별 연차휴가 기초자료  - 일괄생성 */
+function  createall_h060400() {
+
+  obj = document.fm_h060400;
+
+  obj.action = './h060403.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 개인별 공지사항 확인관리 - 조회 */
+function search_h060500() {
+
+  obj  =  document.fm_h060500;
+
+  obj.action = './h060500.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 개인별 공지사항 확인관리 - 개별저장 */
+function modify_h060500(No) {
+
+  obj  =  document.fm_h060500;
+  
+  obj.p_no.value  = No;
+
+  obj.action = './h060501.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 개인별 공지사항 확인관리 - 일괄저장 */
+function modifyAll_h060500(No) {
+
+  obj  =  document.fm_h060500;
+  
+  obj.p_no.value  = No;
+
+  obj.action = './h060502.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 개인별 연차휴가 기초자료  - 잔여일수일괄계산 */
+function  calcAll_h060500(No) {
+
+  obj = document.fm_h060500;
+
+  obj.p_no.value  = No;
+
+  con = confirm('현재날짜 기준으로 연차휴가 잔여일수 일괄계산 하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h060503.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 특별휴가 신청 - 조회 */
+function search_h031000() {
+  
+  obj = document.fm_h031000;
+
+  var begymd = obj.p_search_begymd.value;
+  var endymd = obj.p_search_endymd.value;
+
+
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h031000.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 특별휴가 신청 - 추가 */
+function insert_h031000() {
+  obj  =  document.fm_h031000;
+
+  obj.action = './h031001.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 특별휴가 신청 - 추가 - 성명 검색 */
+function search_h031001(Page) {
+  
+  obj = document.fm_h031001;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+/* 특별휴가 신청 - 추가 - 추가 */
+function insert_h031001() {
+  obj  =  document.fm_h031001;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+  
+  if (!begymd || !endymd) {
+    alert("시작일 또는 종료일을 입력하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var reason = obj.p_reason.value;
+
+  if (!reason) {
+    alert("사유를 입력하세요.");
+    obj.p_reason.focus();
+    return false;
+  }
+
+  var address = obj.p_address.value;
+  
+  if (!address) {
+    alert("체재지를 입력하세요.");
+    obj.p_address.focus();
+    return false;
+  }
+
+  var tel = obj.p_tel.value;
+  
+  if (!tel) {
+    alert("연락처를 입력하세요.");
+    obj.p_tel.focus();
+    return false;
+  }
+
+  obj.action = './h03100101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 특별휴가 신청 - 수정 */ 
+function modify_h031000(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031000;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031002.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 특별휴가 신청 - 수정 - 저장 */
+function modify_h031002() {
+
+  obj  =  document.fm_h031002;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+  
+  if (!begymd || !endymd) {
+    alert("시작일 또는 종료일을 입력하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var reason = obj.p_reason.value;
+
+  if (!reason) {
+    alert("사유를 입력하세요.");
+    obj.p_reason.focus();
+    return false;
+  }
+
+  var address = obj.p_address.value;
+  
+  if (!address) {
+    alert("체재지를 입력하세요.");
+    obj.p_address.focus();
+    return false;
+  }
+
+  var tel = obj.p_tel.value;
+  
+  if (!tel) {
+    alert("연락처를 입력하세요.");
+    obj.p_tel.focus();
+    return false;
+  }
+
+  obj.action = './h03100201.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 특별휴가 신청 - 수정 - 파일삭제 */
+function deleteFile_h031002() {
+
+  obj  =  document.fm_h031002;
+
+  con = confirm('기존 첨부파일 삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h03100202.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 특별휴가 신청 - 삭제 */ 
+function delete_h031000(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031000;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031003.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 특별휴가 신청  - 확인 */
+function check_h031000(Schoolyear, Userid, id, Check) {
+  
+  obj = document.fm_h031000;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+  obj.p_check.value      = Check;
+
+  obj.action = './h031004.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 특별휴가 신청 - 상세조회 */ 
+function detail_h031000(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031000;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031005.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 특별휴가 신청 - 상세조회 - 첨부파일 다운로드 */
+function download_h031005() {
+
+  obj  =  document.fm_h031005;
+
+  obj.action = './h03100501.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 병가 신청 - 조회 */
+function search_h031100() {
+  
+  obj = document.fm_h031100;
+
+  var begymd = obj.p_search_begymd.value;
+  var endymd = obj.p_search_endymd.value;
+
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h031100.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 병가 신청 - 추가 */
+function insert_h031100() {
+  obj  =  document.fm_h031100;
+
+  obj.action = './h031101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 병가 신청 - 추가 - 성명 검색 */
+function search_h031101(Page) {
+  
+  obj = document.fm_h031101;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+/* 병가 신청 - 추가 - 추가 */
+function insert_h031101() {
+  obj  =  document.fm_h031101;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+  
+  if (!begymd || !endymd) {
+    alert("시작일 또는 종료일을 입력하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var reason = obj.p_reason.value;
+
+  if (!reason) {
+    alert("병명을 입력하세요.");
+    obj.p_reason.focus();
+    return false;
+  }
+
+  var address = obj.p_address.value;
+  
+  if (!address) {
+    alert("치료장소(병원명)을 입력하세요.");
+    obj.p_address.focus();
+    return false;
+  }
+
+  var tel = obj.p_tel.value;
+  
+  if (!tel) {
+    alert("연락처를 입력하세요.");
+    obj.p_tel.focus();
+    return false;
+  }
+
+  obj.action = './h03110101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 병가 신청 - 수정 */ 
+function modify_h031100(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031100;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031102.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 병가 신청 - 수정 - 저장 */
+function modify_h031102() {
+
+  obj  =  document.fm_h031102;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+  
+  if (!begymd || !endymd) {
+    alert("시작일 또는 종료일을 입력하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var reason = obj.p_reason.value;
+
+  if (!reason) {
+    alert("사유를 입력하세요.");
+    obj.p_reason.focus();
+    return false;
+  }
+
+  var address = obj.p_address.value;
+  
+  if (!address) {
+    alert("체재지를 입력하세요.");
+    obj.p_address.focus();
+    return false;
+  }
+
+  var tel = obj.p_tel.value;
+  
+  if (!tel) {
+    alert("연락처를 입력하세요.");
+    obj.p_tel.focus();
+    return false;
+  }
+
+  obj.action = './h03110201.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/* 병가 신청 - 수정 - 파일삭제 */
+function deleteFile_h031102() {
+
+  obj  =  document.fm_h031102;
+
+  con = confirm('기존 첨부파일 삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h03110202.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 병가 신청 - 삭제 */ 
+function delete_h031100(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031100;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031103.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 병가 신청  - 확인 */
+function check_h031100(Schoolyear, Userid, id, Check) {
+  
+  obj = document.fm_h031100;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+  obj.p_check.value      = Check;
+
+  obj.action = './h031104.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 병가 신청 - 상세조회 */ 
+function detail_h031100(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031100;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031105.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 병가 신청 - 상세조회 - 첨부파일 다운로드 */
+function download_h031105() {
+
+  obj  =  document.fm_h031105;
+
+  obj.action = './h03100501.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 공가 신청 - 조회 */
+function search_h031200() {
+  
+  obj = document.fm_h031200;
+
+  var begymd = obj.p_search_begymd.value;
+  var endymd = obj.p_search_endymd.value;
+
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h031200.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 공가 신청 - 추가 */
+function insert_h031200() {
+  obj  =  document.fm_h031200;
+
+  obj.action = './h031201.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 공가 신청 - 추가 - 성명 검색 */
+function search_h031201(Page) {
+  
+  obj = document.fm_h031201;
+
+  var username = obj.p_search_username.value;
+
+  if (username.length < 2) {
+    alert("성명은 두글자 이상 입력하세요.");
+    return false;
+  }
+
+  search_name(Page);
+}
+/* 공가 신청 - 추가 - 추가 */
+function insert_h031201() {
+  obj  =  document.fm_h031201;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+  
+  if (!begymd || !endymd) {
+    alert("시작일 또는 종료일을 입력하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var reason = obj.p_reason.value;
+
+  if (!reason) {
+    alert("공가사유를 입력하세요.");
+    obj.p_reason.focus();
+    return false;
+  }
+
+  var address = obj.p_address.value;
+  
+  if (!address) {
+    alert("출두장소를 입력하세요.");
+    obj.p_address.focus();
+    return false;
+  }
+
+  var tel = obj.p_tel.value;
+  
+  if (!tel) {
+    alert("연락처를 입력하세요.");
+    obj.p_tel.focus();
+    return false;
+  }
+
+  obj.action = './h03120101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 공가 신청 - 수정 */ 
+function modify_h031200(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031200;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031202.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 공가 신청 - 수정 - 저장 */
+function modify_h031202() {
+
+  obj  =  document.fm_h031202;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+  
+  if (!begymd || !endymd) {
+    alert("시작일 또는 종료일을 입력하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var reason = obj.p_reason.value;
+
+  if (!reason) {
+    alert("공가사유를 입력하세요.");
+    obj.p_reason.focus();
+    return false;
+  }
+
+  var address = obj.p_address.value;
+  
+  if (!address) {
+    alert("출두장소를 입력하세요.");
+    obj.p_address.focus();
+    return false;
+  }
+
+  var tel = obj.p_tel.value;
+  
+  if (!tel) {
+    alert("연락처를 입력하세요.");
+    obj.p_tel.focus();
+    return false;
+  }
+
+  obj.action = './h03120201.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 공가 신청 - 수정 - 파일삭제 */
+function deleteFile_h031202() {
+
+  obj  =  document.fm_h031202;
+
+  con = confirm('기존 첨부파일 삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h03120202.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 공가 신청 - 삭제 */ 
+function delete_h031200(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031200;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031203.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 공가 신청  - 확인 */
+function check_h031200(Schoolyear, Userid, id, Check) {
+  
+  obj = document.fm_h031200;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+  obj.p_check.value      = Check;
+
+  obj.action = './h031204.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 공가 신청 - 상세조회 */ 
+function detail_h031200(Schoolyear, Userid, id) {
+
+  obj  =  document.fm_h031200;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_userid.value     = Userid;
+  obj.p_id.value         = id;
+
+  obj.action = './h031205.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 공가 신청 - 상세조회 - 첨부파일 다운로드 */
+function download_h031205() {
+
+  obj  =  document.fm_h031205;
+
+  obj.action = './h03100501.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 출장 신청 - 조회 */
+function search_h031300() {
+
+  obj  =  document.fm_h031300;
+
+  var begymd = obj.p_search_begymd.value;
+  var endymd = obj.p_search_endymd.value;
+
+  if (begymd > endymd) {
+    alert("조회시작일보다 종료일이 빠릅니다. 다시 선택하세요.");
+    obj.p_search_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h031300.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 출장 신청 - 추가 */
+function insert_h031300() {
+  obj  =  document.fm_h031300;
+
+  obj.action = './h031301.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 출장 신청 - 추가 - 신청 */
+function insert_h031301() {
+  obj  =  document.fm_h031301;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+  
+  if (!begymd || !endymd) {
+    alert("시작일 또는 종료일을 입력하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var nights = obj.p_nights.value;
+  var days   = obj.p_days.value;
+  var times  = obj.p_times.value;
+  var counts = obj.p_counts.value;
+  
+  if(nights.match(/[^0-9]/) || days.match(/[^0-9]/) || times.match(/[^0-9]/) || counts.match(/[^0-9]/)) {
+    alert("일수, 참여시간, 참여횟수는 숫자만 입력 가능합니다.");
+    return false;
+  }
+
+  var subject = obj.p_subject.value;
+
+  if (!subject) {
+    alert("출장명(용무)를 입력하세요.");
+    obj.p_subject.focus();
+    return false;
+  }
+
+  var ju_group = obj.p_ju_group.value;
+
+  if (!ju_group) {
+    alert("추관기관를 입력하세요.");
+    obj.p_ju_group.focus();
+    return false;
+  }
+
+  var address = obj.p_address.value;
+
+  if (!address) {
+    alert("출장지를 입력하세요.");
+    obj.p_address.focus();
+    return false;
+  }
+
+  obj.action = './h03130101.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 출장명령서 - 상세조회및수정 */ 
+function m_modify_h031300(Schoolyear, id) {
+
+  obj  =  document.fm_h031300;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_id.value         = id;
+
+  obj.action = './h031302.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 출장명령서 - 상세조회및수정 - 저장  */
+function modify_h031302() {
+
+  obj  =  document.fm_h031302;
+  
+  // 출장자 리스트
+  var arrVal = new Array();
+
+  for (var i=0;i<$("#selectBox option").size();i++) {
+    arrVal[i] = $("#selectBox option:eq("+i+")").val();
+  }
+
+  obj.p_tempVal.value = arrVal;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+  
+  if (!begymd || !endymd) {
+    alert("시작일 또는 종료일을 입력하세요.");
+    obj.p_begymd.focus();
+    return false;
+  }
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  var nights = obj.p_nights.value;
+  var days   = obj.p_days.value;
+  var times  = obj.p_times.value;
+  var counts = obj.p_counts.value;
+  
+  if(nights.match(/[^0-9]/) || days.match(/[^0-9]/) || times.match(/[^0-9]/) || counts.match(/[^0-9]/)) {
+    alert("일수, 참여시간, 참여횟수는 숫자만 입력 가능합니다.");
+    return false;
+  }
+
+  obj.action = './h03130201.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 출장명령서 - 상세조회및수정 - 파일삭제 */
+function deleteFile_h031302() {
+
+  obj  =  document.fm_h031302;
+
+  con = confirm('기존 첨부파일 삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h03130202.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 출장명령서 - 수정 - 삭제 */ 
+function delete_h031302() {
+
+  obj  =  document.fm_h031302;
+
+  con = confirm('출장명령서 삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h03130203.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 출장명령서 - 확인 */
+function m_check_h031300(Schoolyear, id) {
+  
+  obj = document.fm_h031300;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_id.value         = id;
+  obj.p_type.value       = 1;
+
+  obj.action = './h031304.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 출장복명서 - 상세조회및수정 */ 
+function b_modify_h031300(Schoolyear, id, Userid) {
+
+  obj  =  document.fm_h031300;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_id.value         = id;
+  obj.p_userid.value         = Userid;
+
+  obj.action = './h031303.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 출장복명서 - 상세조회및수정 - 저장  */
+function modify_h031303() {
+
+  obj  =  document.fm_h031303;
+
+  var begymd = obj.p_begymd.value;
+  var endymd = obj.p_endymd.value;
+
+  if (begymd > endymd) {
+    alert("시작일보다 종료일이 빠릅니다.");
+    obj.p_endymd.focus();
+    return false;
+  }
+
+  obj.action = './h03130301.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 출장복명서 - 상제조회및수정 - 파일삭제 */
+function deleteFile_h031303() {
+
+  obj  =  document.fm_h031303;
+
+  con = confirm('기존 첨부파일 삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h03130302.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 출장복명서 - 상제조회및수정 - 초기화 */ 
+function delete_h031303() {
+
+  obj  =  document.fm_h031303;
+
+  con = confirm('출장복명서 삭제하시겠습니까?');
+  if (con == 1) {
+    obj.action = './h03130303.php';
+    obj.target = '_self';
+    obj.method = 'POST';
+    obj.submit();
+  }
+  else {
+    return false;
+  }
+}
+/* 출장복명서 - 확인 */
+function b_check_h031300(Schoolyear, id, Userid) {
+  
+  obj = document.fm_h031300;
+
+  obj.p_schoolyear.value = Schoolyear;
+  obj.p_id.value         = id;
+  obj.p_userid.value     = Userid;
+  obj.p_type.value       = 2;
+
+  obj.action = './h031304.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+
+/*전복무관리 데이터이관 - 삭제예정@@@@@@@@@@ */
+function createAll_h060400(){
+
+  obj = document.fm_h060400;
+
+  obj.action = './h060404.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 계약직원 연차휴가 기초자료 - 조회 */
+function search_h060700() {
+
+  obj  =  document.fm_h060700;
+
+  obj.action = './h060700.php';
+  obj.method = 'post';
+  obj.target = '_self';
+  obj.submit();
+}
+/* 계약직원 연차휴가 기초자료  - 다운로드 */
+function  downLoad_h060700() {
+
+  obj = document.fm_h060700;
+
+  obj.action = './h060701.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}
+/* 계약직원 연차휴가 기초자료 - 수정 */
+function modify_h060700(No, Userid) {
+
+  obj  =  document.fm_h060700;
+  
+  obj.p_no.value                = No;
+  obj.p_userid.value            = Userid;
+
+  obj.action = './h060702.php';
+  obj.target = '_self';
+  obj.method = 'POST';
+  obj.submit();
+}

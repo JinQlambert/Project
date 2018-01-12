@@ -1,0 +1,44 @@
+/**
+ * Date :  2016-05-02 오후 10:37
+ * 이 사이트에서만 쓰이는 스크립트 작성
+ */
+var UI = {
+	init:function () {
+		UI.gnb();
+		UI.aside();
+	},
+	aside:function(){
+		$('#aside > ul > li > div').click(function(e) {
+			var $li = $(this).closest('li');
+			if($li.hasClass('on')){
+				$li.removeClass('on');
+			}else{
+				$('#aside > ul > li').removeClass('on');
+				$li.addClass('on');
+			}
+		});
+	},
+	gnb:function () {
+
+		//TODO: GNB 메뉴에 마우스올리면 2뎁스 열기
+		$('#gnb').mouseenter(function (e) {
+			$('#header .gnb_section').addClass('on');
+		});
+		//TODO: GNB에서 마우스 떠나면 2뎁스 닫기
+		$('#header .gnb_section').mouseleave(function (e) {
+			$('#header .gnb_section').removeClass('on');
+		});
+		//TODO: sub_center 클래스 가지고있으면 2뎁스 메뉴 CETNER 정렬
+		$('#gnb.sub_center > li > ul').each(function (i) {
+			var wid = $(this).width();
+			var $li = $(this).closest('li');
+			var tx = $li.width()/2-wid/2;
+			$(this).css('left', tx+'px');
+		});
+
+	}
+
+}
+$(function(){
+	UI.init();
+});

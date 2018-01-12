@@ -1,0 +1,33 @@
+.notice_section{ }
+.notice_section .box{ display:inline-block; position:relative; }
+.notice_section .box .btn_more{ position:absolute; top:4px; right:0px; }
+.notice_section .box .ul0{ margin-top:24px; width:100%; }
+.notice_section .box0{ width:440px; margin-right:34px; }
+.notice_section .box1{ width:440px; }
+/**/
+.info_section{ padding-top:34px; }
+.info_section .info_table{ margin-top:22px; }
+.info_section .btn_more{ position:absolute; top:4px; right:0px; }
+/*
+.shortcut_section{ padding-top:53px; } */
+.shortcut_section .shortcut_bar{ cursor:pointer; position:relative; padding-left:25px; height:71px; line-height:63px; border:1px solid #D7D7D7; box-sizing:border-box; }
+.shortcut_section .shortcut_bar:after{ background:url(./img/icon/shortcut_off.png) no-repeat; width:15px; height:10px; position:absolute; top:30px; right:30px; content:''; display:block; }
+.shortcut_section .shortcut_bar.on:after{ background:url(./img/icon/shortcut_on.png) no-repeat; }
+.shortcut_section .shortcut_bar .title{ letter-spacing:-0.075em; color:#666; font-size:18px; font-weight:bold; }
+.shortcut_section .shortcut_bar > *{ vertical-align:middle; }
+/**/
+.shortcut_section .shortcut_link_wrap{ padding-top:41px; padding-left:43px; padding-right:43px; padding-bottom:72px; }
+.shortcut_section .shortcut_link_wrap{ border:1px solid #EBEBEB; border-top:none; }
+.shortcut_section .shortcut_link_wrap > ul{ width:100%; display:table; }
+.shortcut_section .shortcut_link_wrap > ul > li{ width:150px; display:table-cell; }
+.shortcut_section .shortcut_link_wrap > ul > li > a{ margin-bottom:22px; font-weight:bold; font-size:15px; color:#00AEEF; letter-spacing:-0.075em; }
+.shortcut_section .shortcut_link_wrap > ul > li > ul{ }
+.shortcut_section .shortcut_link_wrap > ul > li > ul > li{ position:relative; margin-bottom:18px; }
+.shortcut_section .shortcut_link_wrap > ul > li > ul > li:after{ background:#B2D5F1; width:3px; height:3px; position:absolute; top:9px; left:0px; content:''; display:block; }
+.shortcut_section .shortcut_link_wrap > ul > li > ul > li > a{ line-height:22px; padding-left:5px; font-size:14px; color:#666; letter-spacing:-0.075em; }
+
+
+
+
+
+

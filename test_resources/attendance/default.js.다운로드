@@ -1,0 +1,93 @@
+/**
+ * Date :  2016-05-02 오후 10:34
+ * 모든 페이지에 공통으로 들어가는 JS
+ * 이 사이트뿐아니라 다른곳에서도 전부 쓰이는 스크립트 작성
+ */
+var PAGE_CALSS;
+var DEPTH1_IDX, DEPTH2_IDX, DEPTH3_IDX;//메뉴 인덱스 (Number)
+var DEPTH1_IDX_STR, DEPTH2_IDX_STR, DEPTH3_IDX_STR;//메뉴 인덱스 (String)
+var DEPTH1_LABEL, DEPTH2_LABEL, DEPTH3_LABEL;//메뉴 버튼 라벨 (String)
+var DEPTH1_HREF, DEPTH2_HREF, DEPTH3_HREF;//메뉴 버튼 이동 URL (String)
+var DEFAULT = {
+	init:function(){
+		DEFAULT.getPageInfo();
+	},
+
+	getPageInfo:function(){
+		var page_class = $('body > .page').attr("class");
+		PAGE_CALSS = page_class;
+		if( page_class ){
+			var classes = $('body > .page').attr("class").split(" ");
+			var i = 0;
+			var len = classes.length;
+			while( i < len ){
+				if( classes[i].indexOf('a3-') > -1 ){
+					DEPTH1_IDX = convert(classes[i]);
+					DEPTH1_IDX_STR = convertTXT(classes[i]);
+				}
+				if( classes[i].indexOf('a4-') > -1 ){
+					DEPTH2_IDX = convert(classes[i]);
+					DEPTH2_IDX_STR = convertTXT(classes[i]);
+				}
+				if( classes[i].indexOf('a5-') > -1 ){
+					DEPTH3_IDX = convert(classes[i]);
+					DEPTH3_IDX_STR = convertTXT(classes[i]);
+				}
+				++i;
+			}
+			function convert ( className ){
+				var k = parseInt(className.split('-')[1]) - 1;
+				return k;
+			}
+
+			function convertTXT ( className ){
+				var k = className.split('-')[1];
+				return k;
+			}
+		}
+		//메뉴 활성화
+		var $depth1 = $('#gnb > li').eq(DEPTH1_IDX);
+		var $depth2 = $depth1.find('> ul > li').eq(DEPTH2_IDX);
+		var $depth3 = $depth2.find('> ul > li').eq(DEPTH3_IDX);
+		$depth1.addClass('on');
+		$depth2.addClass('on');
+		$depth3.addClass('on');
+		//메뉴 정보 가지고있기
+		DEPTH1_LABEL = $('#gnb > li.on > a').text();
+		DEPTH1_HREF = $('#gnb > li.on > a').attr('href');
+		DEPTH2_LABEL = $('#gnb > li.on > ul > li.on > a').text();
+		DEPTH2_HREF = $('#gnb > li.on > ul > li.on > a').attr('href');
+		DEPTH3_LABEL = $('#gnb > li.on > ul > li.on > ul > li.on > a').text();
+		DEPTH3_HREF = $('#gnb > li.on > ul > li.on > ul > li.on > a').attr('href');
+	}
+}
+/**
+ * 콘솔 에러 방지
+ */
+if( !window.console || !console.log ){
+	console = {
+		log:function(){
+		}
+	};
+}
+/**
+ * DOM 로딩 완료
+ */
+$(function(){
+	DEFAULT.init();
+	//console.log('%c' + '참좋은인터넷', 'color: #ed017c; font-size:40px; font-weight:bold; font-family:"맑은 고딕"');
+	//console.log("DEPTH1_IDX : " + DEPTH1_IDX);
+	//console.log("DEPTH2_IDX : " + DEPTH2_IDX);
+	//console.log("DEPTH3_IDX : " + DEPTH3_IDX);
+});
+
+/*
+*  originalstr: lpad 할 text
+*  length: lpad할 길이
+*  strToPad: lpad 시킬 text
+*/
+function lpad(originalstr, length, strToPad) {
+    while (originalstr.length < length)
+        originalstr = strToPad + originalstr;
+    return originalstr;
+}

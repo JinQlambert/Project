@@ -23,12 +23,12 @@ def login_prompt():
 
 
 # In[6]:
+url = "https://www.hongik.ac.kr/login.do?Refer=https%3A%2F%2Fhrm.hongik.ac.kr%2Fnew%2Findex.php" #접속 페이지 주소를 미리 변수로 저장
 
 
 def loginsequence(driver, loginID, loginpw):
     driver.implicitly_wait(1) #3초 기다려주기
     
-    url = "https://www.hongik.ac.kr/login.do?Refer=https%3A%2F%2Fhrm.hongik.ac.kr%2Fnew%2Findex.php" #접속 페이지 주소를 미리 변수로 저장
     driver.get(url) 
     
     driver.find_element_by_name('USER_ID').send_keys(loginID)
