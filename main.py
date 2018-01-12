@@ -1,29 +1,19 @@
-
 # coding: utf-8
 
 # In[1]:
 
 
-import random
 import time
 import schedule
 
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-
-from bs4 import BeautifulSoup
-from urllib.request import urlopen
-from slacker import Slacker
 
 
 # In[2]:
 
 
 from login import login_prompt, loginsequence
-from attendance import RealEvent, GetAttendance, Attendance  
+from attendance import Attendance  
 
 
 # In[3]:
@@ -37,7 +27,15 @@ loginsequence(driver, loginID, loginpw)
 # In[ ]:
 
 
-schedule.every().day.at("8:00").do(Attendance)
+YesOrNoTest = input("오류가 없었나요?:[y/n] ")
+if YesOrNoTest =="y":
+    print("프로그램을 시작합니다")
+    print("윈도우 업데이트 등 자동 종료가 되지않도록 해주세요")
+    schedule.every.day.at("8:00").do(Attendance, driver, loginID, loginpw)
+else :
+    print("프로그램을 종료합니다.")
+    print("오류를 해결 한 후 프로그램을 다시 실행해주세요")
+    quit()
     
 if __name__ == "__main__":
         while True:
