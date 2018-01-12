@@ -40,4 +40,4 @@ if __name__ == "__main__":
         except ImportError:
                 print('Install pytest: $ pip install pytest')
         else:
-                pytest.main(["--no-print-logs", "--verbose"])
+                pytest.main()
