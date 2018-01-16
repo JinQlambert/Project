@@ -31,7 +31,7 @@ YesOrNoTest = input("오류가 없었나요?:[y/n] ")
 if YesOrNoTest =="y":
     print("프로그램을 시작합니다")
     print("윈도우 업데이트 등 자동 종료가 되지않도록 해주세요")
-    driver.quit()
+
     
     schedule.every().day.at("8:00").do(Attendance, driver, loginID, loginpw, token)
 else :
