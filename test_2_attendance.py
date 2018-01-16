@@ -6,7 +6,7 @@ def test_RealEvent():
         with fake_driver() as driver:
                 with fake_login_page():
                         from attendance import RealEvent
-                        RealEvent(driver, 'hello', 'test')
+                        RealEvent(driver, 'hello', 'test', 'n')
 
 
 @pytest.mark.skip(reason='No AttendanceList Page Currently.')
@@ -15,4 +15,4 @@ def test_GetAttendance():
                 goto_fake_page(driver, './test_resources/attendance_clicked.html')
 
                 from attendance import GetAttendance
-                GetAttendance(driver)
+                GetAttendance(driver, 'n')
