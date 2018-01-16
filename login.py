@@ -16,10 +16,10 @@ from selenium.common.exceptions import TimeoutException
 def login_prompt():
     loginID = input("아이디를 입력해주세요: ")
     loginpw = input("비밀번호를 입력해주세요: ")
-    
+    token = input("슬랙 토큰이 있다면 넣어주시고 없으면 [n]을 쳐주세요: ")
     print("로그인 테스트를 시작합니다.")
     
-    return (loginID, loginpw)
+    return (loginID, loginpw, token)
 
 
 # In[6]:

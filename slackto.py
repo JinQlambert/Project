@@ -6,9 +6,13 @@
 
 from slacker import Slacker
 
-def send(message):
-    
-    token = 'xoxb-295111285623-xMQ4NxaJ722POUyyN1DKCGeh'
+
+
+def send(token, message):
     slack = Slacker(token)
     slack.chat.post_message('#general', message)
+    token.close()
+
+    
+    
 
